@@ -88,11 +88,7 @@ fn wall_update_shape(
 }
 
 /// Copies the placed stack's profile component into the skull block entity.
-fn copy_profile_from_placed_stack(
-    world: &Arc<World>,
-    pos: BlockPos,
-    source: &PlacementSource<'_>,
-) {
+fn copy_profile_from_placed_stack(world: &Arc<World>, pos: BlockPos, source: &PlacementSource<'_>) {
     let Some(entity) = world.get_block_entity(pos) else {
         return;
     };
