@@ -62,7 +62,7 @@ impl BlockEntity for SkullBlockEntity {
     fn load_additional(&self, nbt: &BorrowedNbtCompound<'_>) {
         let nbt_view: BorrowedNbtCompoundView<'_, '_> = nbt.into();
         if let Some(tag) = nbt_view.get("profile") {
-            *self.owner.lock() = ResolvableProfile::from_nbt_tag(tag.clone());
+            *self.owner.lock() = ResolvableProfile::from_nbt_tag(tag);
         }
     }
 

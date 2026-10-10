@@ -100,11 +100,7 @@ fn copy_profile_from_placed_stack(world: &Arc<World>, pos: BlockPos, source: &Pl
 }
 
 /// Returns the pick-block stack for a skull, copying the stored profile.
-fn clone_item_stack_with_profile(
-    world: &Arc<World>,
-    pos: BlockPos,
-    block: BlockRef,
-) -> Option<ItemStack> {
+fn clone_item_stack_with_profile(world: &Arc<World>, pos: BlockPos, block: BlockRef) -> ItemStack {
     let mut stack = ItemStack::new(REGISTRY.items.by_block(block));
     if let Some(entity) = world.get_block_entity(pos)
         && let Some(skull) = entity.downcast_ref::<SkullBlockEntity>()
@@ -112,7 +108,7 @@ fn clone_item_stack_with_profile(
     {
         stack.set(PROFILE, profile);
     }
-    Some(stack)
+    stack
 }
 
 /// Behavior for standing skull blocks (`skeleton_skull`, `zombie_head`,
@@ -179,7 +175,7 @@ impl BlockBehavior for SkullBlock {
         _state: BlockStateId,
         _include_data: bool,
     ) -> Option<ItemStack> {
-        clone_item_stack_with_profile(world, pos, block)
+        Some(clone_item_stack_with_profile(world, pos, block))
     }
 }
 
@@ -254,7 +250,7 @@ impl BlockBehavior for WallSkullBlock {
         _state: BlockStateId,
         _include_data: bool,
     ) -> Option<ItemStack> {
-        clone_item_stack_with_profile(world, pos, block)
+        Some(clone_item_stack_with_profile(world, pos, block))
     }
 }
 
@@ -324,7 +320,7 @@ impl BlockBehavior for WitherSkullBlock {
         _state: BlockStateId,
         _include_data: bool,
     ) -> Option<ItemStack> {
-        clone_item_stack_with_profile(world, pos, block)
+        Some(clone_item_stack_with_profile(world, pos, block))
     }
 }
 
@@ -401,7 +397,7 @@ impl BlockBehavior for WitherWallSkullBlock {
         _state: BlockStateId,
         _include_data: bool,
     ) -> Option<ItemStack> {
-        clone_item_stack_with_profile(world, pos, block)
+        Some(clone_item_stack_with_profile(world, pos, block))
     }
 }
 
@@ -468,7 +464,7 @@ impl BlockBehavior for PlayerHeadBlock {
         _state: BlockStateId,
         _include_data: bool,
     ) -> Option<ItemStack> {
-        clone_item_stack_with_profile(world, pos, block)
+        Some(clone_item_stack_with_profile(world, pos, block))
     }
 }
 
@@ -542,7 +538,7 @@ impl BlockBehavior for PlayerWallHeadBlock {
         _state: BlockStateId,
         _include_data: bool,
     ) -> Option<ItemStack> {
-        clone_item_stack_with_profile(world, pos, block)
+        Some(clone_item_stack_with_profile(world, pos, block))
     }
 }
 
@@ -619,7 +615,7 @@ impl BlockBehavior for PiglinWallSkullBlock {
         _state: BlockStateId,
         _include_data: bool,
     ) -> Option<ItemStack> {
-        clone_item_stack_with_profile(world, pos, block)
+        Some(clone_item_stack_with_profile(world, pos, block))
     }
 }
 
@@ -812,7 +808,7 @@ mod tests {
             Direction::South,
             Direction::West,
         ] {
-            let mut stack = ItemStack::new(&vanilla_items::SKELETON_WALL_SKULL);
+            let mut stack = ItemStack::new(&vanilla_items::SKELETON_SKULL);
             let source = PlacementSource::direct(
                 None,
                 InteractionHand::MainHand,
@@ -844,7 +840,7 @@ mod tests {
             );
         }
 
-        let mut stack = ItemStack::new(&vanilla_items::SKELETON_WALL_SKULL);
+        let mut stack = ItemStack::new(&vanilla_items::SKELETON_SKULL);
         let source = PlacementSource::direct(
             None,
             InteractionHand::MainHand,
