@@ -456,11 +456,16 @@ impl Player {
             self.stop_using_item();
             return;
         }
-        let mut item = {
+        // Vanilla re-points its `useItem` at the live held stack every tick, so
+        // `on_use_tick` mutates the held stack in place. Steel cannot hold the
+        // inventory lock across the callback, so tick a clone and only commit it
+        // when the hand still holds what it held before the callback; a stack
+        // replacement made during `on_use_tick` must win over this stale copy.
+        let held_snapshot = {
             let inventory = self.inventory.lock();
-            let current = inventory.get_item_in_hand(hand);
-            current.clone()
+            inventory.get_item_in_hand(hand).clone()
         };
+        let mut item = held_snapshot.clone();
         let world = self.get_world();
         let Some(user) = LivingEntityRef::new(entity) else {
             panic!("active item use requires a living entity");
@@ -471,6 +476,25 @@ impl Player {
             self.inventory.lock().set_item_in_hand(hand, item);
             return;
         }
+        // Matches the full-stack `equals` re-check vanilla performs in
+        // `completeUsingItem` before `finishUsingItem`. Without it, finishing
+        // on the stale clone would both apply the old stack's outcome and
+        // overwrite the replacement the callback installed.
+        let held_unchanged = {
+            let inventory = self.inventory.lock();
+            ItemStack::matches(inventory.get_item_in_hand(hand), &held_snapshot)
+        };
+        if !held_unchanged {
+            let Some(active) = self.living_base.decrement_active_item_use() else {
+                self.stop_using_item();
+                return;
+            };
+            if active.remaining_ticks() == 0 && !behavior.use_on_release(&item) {
+                self.release_using_item_with_behavior(entity, behavior, active);
+            }
+            return;
+        }
+
         let Some(active) = self.living_base.decrement_active_item_use() else {
             self.inventory.lock().set_item_in_hand(hand, item);
             return;

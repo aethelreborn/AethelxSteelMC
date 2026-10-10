@@ -2,10 +2,10 @@ use std::io::Cursor;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
-use crate::behavior::{InteractionResult, init_behaviors};
+use crate::behavior::{InteractionResult, ItemBehavior, init_behaviors};
 use crate::chunk_saver::PersistentEntity;
 use crate::entity::{
-    DEFAULT_MAX_AIR_SUPPLY, Entity, EntitySyncedData, LivingEntity, SharedEntity,
+    DEFAULT_MAX_AIR_SUPPLY, Entity, EntitySyncedData, LivingEntity, LivingEntityRef, SharedEntity,
     damage::DamageSource, entities::ItemEntity, next_entity_id,
 };
 use crate::inventory::{
@@ -1600,6 +1600,64 @@ fn drinking_honey_bottle_from_full_inventory_drops_the_remainder_through_the_tic
         panic!("dropped entity should retain its concrete item type");
     };
     assert!(item.get_item().is(&vanilla_items::GLASS_BOTTLE));
+}
+
+/// Regression test for https://github.com/Steel-Foundation/SteelMC/issues/529:
+/// when `on_use_tick` replaces the held stack, the tick must keep that
+/// replacement instead of writing the stale pre-callback copy back over it,
+/// and must not finish using the old stack.
+#[test]
+fn on_use_tick_replacing_the_held_stack_keeps_the_replacement() {
+    init_vanilla_registry();
+    init_behaviors();
+    let world_fixture = fresh_test_world("on_use_tick_replaces_held_stack");
+    let world = &world_fixture.world;
+    insert_ready_full_chunk(world, ChunkPos::new(0, 0));
+    let player = test_player(Arc::clone(world));
+    let player_entity: SharedEntity = Arc::<Player>::clone(&player);
+
+    player
+        .inventory
+        .lock()
+        .set_selected_item(ItemStack::with_count(&vanilla_items::HONEY_BOTTLE, 5));
+    player.start_using_item(InteractionHand::MainHand);
+
+    struct ReplacesHeldStack;
+    impl ItemBehavior for ReplacesHeldStack {
+        fn on_use_tick(
+            &self,
+            _world: &Arc<World>,
+            user: LivingEntityRef<'_>,
+            _stack: &mut ItemStack,
+            _ticks_remaining: i32,
+        ) {
+            let Some(replacing) = user.entity().as_player() else {
+                panic!("test user should be a player");
+            };
+            replacing
+                .inventory
+                .lock()
+                .set_selected_item(ItemStack::new(&vanilla_items::DIAMOND));
+        }
+    }
+
+    let active = player
+        .living_base
+        .active_item_use()
+        .expect("honey bottle use should start");
+    player.tick_active_item_use_with_behavior(&player_entity, &ReplacesHeldStack, active);
+
+    let hand_item = player
+        .inventory
+        .lock()
+        .get_item_in_hand(InteractionHand::MainHand)
+        .clone();
+    assert!(hand_item.is(&vanilla_items::DIAMOND));
+
+    // The use must also not keep ticking as the old item: the next generic
+    // tick sees a type mismatch and stops the active use.
+    player.tick_active_item_use(&player_entity);
+    assert!(player.living_base.active_item_use().is_none());
 }
 
 #[test]
