@@ -1,0 +1,36 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Nightly
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly-2026-08-21
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build release binary
+        run: cargo build --release --locked -p steel --features stand-alone,deadlock_detection
+
+      - name: Package binary
+        run: mv target/release/steel steel-linux && chmod +x steel-linux
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: steel-linux
+          path: steel-linux
+          retention-days: 30

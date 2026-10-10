@@ -20,7 +20,8 @@ header()  { echo -e "${BOLD}${CYAN}▶ $*${NC}"; }
 check_bin() {
     if [[ ! -x "$SERVER_BIN" ]]; then
         error "Server binary '$SERVER_BIN' not found or not executable."
-        error "Make sure steel-linux is in $(pwd) and run: chmod +x steel-linux"
+        error "Run ./fetch-binary.sh to download it (CI artifact or upstream release),"
+        error "or build from source: cargo build --release -p steel"
         exit 1
     fi
 }
@@ -32,7 +33,7 @@ ensure_dirs() {
 main() {
     local ram="${1:-}"
 
-    header "AethelxStoneMC — SteelMC Server Launcher"
+    header "AethelxSteelMC — SteelMC Server Launcher"
     info "Working directory: $(pwd)"
     info "Server binary:     $SERVER_BIN ($(du -h "$SERVER_BIN" | cut -f1))"
 

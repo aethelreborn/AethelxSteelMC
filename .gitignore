@@ -1,12 +1,59 @@
-.logs/
-saves/
+# Build/Generated
+/target
+/steel-registry/src/generated
+/steel-utils/src/generated
+/steel-core/src/behavior/generated
+/steel-core/src/entity/generated
+/steel-worldgen/src/generated
+/steel-utils/build_assets/builtin_datapacks
+/steel-utils/build_assets/.asset-extract.lock
+/steel-utils/build_assets/en_us.json
+/steel-utils/build_assets/deprecated.json
+/steel-utils/build_assets/version.json
 
+# Runtime
+/.tmp
+/.logs
+/world
+/saves
+/players
+
+# Misc
+CLAUDE.md
+.env
+/minecraft-src
+.agents
+skills-lock.json
+docs
+
+# Package
+profile.json.gz
+profile.json.syms.json
+*.gz
+*.class
+
+# ICE crash reports
+rustc-ice-*
+
+# Nix
+/.direnv
+/result
+/result-*
+
+# IDE
+.vscode/settings.json
+.idea
+
+.DS_STORE
+.DS_Store
+Thumbs.deploy
+.gitcraft-tmp/
+/.vs
+
+# Playit (local tunnel credentials — never commit)
 .playit/*
 !.playit/.gitkeep
 playit.conf
-
-.DS_Store
-Thumbs.deploy
 
 # Server binary is built by CI, never committed
 /steel-linux

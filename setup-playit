@@ -11,7 +11,7 @@ CLI_PATH="$PLAYIT_DIR/playit-cli"
 LOG_PATH="$PLAYIT_DIR/agent.log"
 CONFIG_PATH="${PLAYIT_CONFIG:-$SCRIPT_DIR/playit.conf}"
 
-PLAYIT_NAME="AethelxStoneMC"
+PLAYIT_NAME="AethelxSteelMC"
 PLAYIT_PORT="25565"
 PLAYIT_PROTOCOL="tcp"
 if [[ -f "$CONFIG_PATH" ]]; then

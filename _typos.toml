@@ -1,0 +1,31 @@
+[files]
+extend-exclude = ["**/build_assets/**", "*.json"]
+
+[type.locale]
+extend-glob = ["**/locale.rs"]
+check-file = false
+
+[default.extend-words]
+flate = "flate"
+strat = "strat"
+axe = "axe"
+BlockBehaviour = "BlockBehaviour"
+behaviour = "behaviour"
+interruptable = "interruptable"
+neighbour = "neighbour"
+# Vanilla stronghold piece-type IDs (shs, shsd, shrc, ...).
+shs = "shs"
+# Vanilla carver tag name (minecraft:overworld_carver_replaceables).
+replaceables = "replaceables"
+# Mojang's shipped translation key (snbt.parser.undescore_not_allowed).
+undescore = "undescore"
+# Vanilla block tag name minecraft:convertable_to_mud
+convertable = "convertable"
+# Vanilla block name: OCHRE_FROGLIGHT.
+OCHRE = "OCHRE"
+
+[default.extend-identifiers]
+player_mode_customisation = "player_mode_customisation"
+
+[default]
+locale = "en-us"
