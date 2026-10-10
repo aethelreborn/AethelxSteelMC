@@ -637,8 +637,8 @@ mod tests {
     use steel_registry::init_vanilla_registry;
     use steel_registry::resolvable_profile::{PlayerSkinPatch, ResolvableProfile};
     use steel_registry::vanilla_items;
-    use steel_utils::types::{InteractionHand, UpdateFlags};
     use steel_utils::ChunkPos;
+    use steel_utils::types::{InteractionHand, UpdateFlags};
 
     use super::*;
     use crate::behavior::{
@@ -810,8 +810,12 @@ mod tests {
         let _holder = insert_ready_full_chunk(world, ChunkPos::from_block_pos(support));
 
         let skull = wall_skull();
-        for clicked_face in [Direction::North, Direction::East, Direction::South, Direction::West]
-        {
+        for clicked_face in [
+            Direction::North,
+            Direction::East,
+            Direction::South,
+            Direction::West,
+        ] {
             let mut stack = ItemStack::new(&vanilla_items::SKELETON_WALL_SKULL);
             let source = PlacementSource::direct(
                 None,
@@ -942,7 +946,11 @@ mod tests {
         saved.write(&mut bytes);
         let borrowed = read_compound(&mut Cursor::new(bytes.as_slice()))
             .expect("saved skull NBT should reborrow");
-        let restored = SkullBlockEntity::new(Weak::new(), pos, vanilla_blocks::PLAYER_HEAD.default_state());
+        let restored = SkullBlockEntity::new(
+            Weak::new(),
+            pos,
+            vanilla_blocks::PLAYER_HEAD.default_state(),
+        );
         restored.load_additional(&borrowed);
         assert_eq!(restored.owner(), Some(profile));
     }

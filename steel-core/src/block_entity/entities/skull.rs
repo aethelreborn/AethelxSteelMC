@@ -3,7 +3,7 @@
 //! Stores the owner profile rendered on standing and wall skull/head blocks.
 //! Vanilla parity: `SkullBlockEntity`.
 
-use std::sync::{Arc, Weak};
+use std::sync::Weak;
 
 use simdnbt::borrow::{
     BaseNbtCompound as BorrowedNbtCompound, NbtCompound as BorrowedNbtCompoundView,
@@ -37,7 +37,7 @@ impl SkullBlockEntity {
     #[must_use]
     pub fn new(level: Weak<World>, pos: BlockPos, state: BlockStateId) -> Self {
         Self {
-            base: BlockEntityBase::new(vanilla_block_entity_types::SKULL, level, pos, state),
+            base: BlockEntityBase::new(&vanilla_block_entity_types::SKULL, level, pos, state),
             owner: SyncMutex::new(None),
         }
     }
