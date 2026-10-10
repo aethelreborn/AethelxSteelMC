@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+SERVER_PID_FILE="./.server.pid"
+SERVER_BIN="./steel-linux"
+
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
+CYAN='\033[0;36m'; BOLD='\033[1m'; NC='\033[0m'
+
+info()    { echo -e "${GREEN}[Info]${NC}  $*"; }
+warn()    { echo -e "${YELLOW}[Warn]${NC}  $*"; }
+error()   { echo -e "${RED}[Error]${NC} $*" >&2; }
+header()  { echo -e "${BOLD}${CYAN}▶ $*${NC}"; }
+
+get_pid() {
+    if [[ -f "$SERVER_PID_FILE" ]]; then
+        cat "$SERVER_PID_FILE"
+    else
+        pgrep -f "$SERVER_BIN" 2>/dev/null || true
+    fi
+}
+
+is_running() {
+    local pid
+    pid="$(get_pid)"
+    if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+        return 0
+    fi
+    return 1
+}
+
+cmd_stop() {
+    if ! is_running; then
+        warn "Server is not running (cleaning stale PID file if any)."
+        rm -f "$SERVER_PID_FILE"
+        exit 0
+    fi
+
+    local pid
+    pid="$(get_pid)"
+    header "Stopping SteelMC (PID $pid)…"
+    info "Sending SIGTERM — server will save worlds and shut down gracefully."
+
+    kill -TERM "$pid" 2>/dev/null || true
+
+    local elapsed=0
+    while kill -0 "$pid" 2>/dev/null && (( elapsed < 30 )); do
+        sleep 1
+        elapsed=$((elapsed + 1))
+        printf "\r  waiting... %ds" "$elapsed"
+    done
+    echo ""
+
+    if kill -0 "$pid" 2>/dev/null; then
+        warn "Server did not stop within 30s. Sending SIGKILL."
+        kill -KILL "$pid" 2>/dev/null || true
+        sleep 1
+    fi
+
+    rm -f "$SERVER_PID_FILE"
+    info "Server stopped."
+}
+
+cmd_restart() {
+    local ram="$1"
+    cmd_stop
+    sleep 2
+    exec "./start" "$ram"
+}
+
+cmd_status() {
+    header "Server Status"
+    echo ""
+
+    if is_running; then
+        local pid
+        pid="$(get_pid)"
+        echo -e "  ${GREEN}● Running${NC}    PID: $pid"
+        echo ""
+        if command -v ps &>/dev/null; then
+            local start_time
+            start_time="$(ps -o lstart= -p "$pid" 2>/dev/null || echo 'unknown')"
+            echo -e "  ${CYAN}Started:${NC}    $start_time"
+        fi
+    else
+        echo -e "  ${RED}● Stopped${NC}"
+    fi
+
+    echo ""
+    echo "  Config:     $SCRIPT_DIR/config/"
+    echo "  Worlds:     $SCRIPT_DIR/saves/"
+    echo "  Logs:       $SCRIPT_DIR/.logs/"
+    echo ""
+    echo "  Quick commands:"
+    echo "    ./start [RAM]   — start the server"
+    echo "    ./stop          — stop the server"
+    echo "    ./restart [RAM] — restart the server"
+    echo "    ./status        — show this status"
+}
+
+case "${1:-status}" in
+    stop)
+        cmd_stop
+        ;;
+    restart)
+        cmd_restart "${2:-}"
+        ;;
+    status|*)
+        cmd_status
+        ;;
+esac

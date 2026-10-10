@@ -1,0 +1,16 @@
+
+default_groups = ["default"]
+
+[groups.default]
+priority = 0
+inherits = []
+allow = []
+deny = []
+metadata = []
+
+[groups.op]
+priority = 0
+inherits = []
+allow = ["*"]
+deny = []
+metadata = []

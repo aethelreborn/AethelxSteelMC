@@ -1,0 +1,13 @@
+.logs/
+saves/
+
+.playit/*
+!.playit/.gitkeep
+playit.conf
+
+.DS_Store
+Thumbs.deploy
+
+# Server binary is built by CI, never committed
+/steel-linux
+.server.pid

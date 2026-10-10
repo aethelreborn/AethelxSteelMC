@@ -1,0 +1,58 @@
+
+[server]
+server_port = 25565
+max_players = 20
+allow_extended_view_distance = false
+view_distance = 6
+simulation_distance = 4
+max_chained_neighbor_updates = 1000000
+online_mode = true
+encryption = true
+allow_flight = false
+motd = "A Steel Server"
+
+use_favicon = true
+favicon = "config/favicon.png"
+enforce_secure_chat = false
+chat_spam_threshold_seconds = 10
+command_spam_threshold_seconds = 10
+
+[server.threads]
+main_runtime = 0
+chunk_runtime = 0
+packet_workers = 0
+chunk_generation = 0
+chunk_encoding = 0
+
+[server.compression]
+threshold = 256
+level = 4
+
+[server.server_links]
+enable = true
+
+[[server.server_links.links]]
+label = "bug_report"
+url = "https://github.com/Steel-Foundation/SteelMC/issues"
+
+[[server.server_links.links]]
+label = "website"
+url = "https://github.com/Steel-Foundation/SteelMC"
+
+[[server.server_links.links]]
+label = "announcements"
+url = "https://discord.com/channels/1428487339759370322/1428487584966774795"
+
+[[server.server_links.links]]
+label = { text = "Visit the SteelMC Discord", color = "blue", bold = true }
+url = "https://discord.gg/suSXXNdVSf"
+
+[log]
+log_path = "./.logs"
+log_level = "info"
+time = "uptime"
+module_path = false
+extra = false
+log_file = true
+rotation_time = "daily"
+max_history = 50

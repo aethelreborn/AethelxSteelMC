@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+SERVER_BIN="./steel-linux"
+LOG_DIR="./.logs"
+CONFIG_DIR="./config"
+SAVES_DIR="./saves"
+
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
+CYAN='\033[0;36m'; BOLD='\033[1m'; NC='\033[0m'
+
+info()    { echo -e "${GREEN}[Info]${NC}  $*"; }
+warn()    { echo -e "${YELLOW}[Warn]${NC}  $*"; }
+error()   { echo -e "${RED}[Error]${NC} $*" >&2; }
+header()  { echo -e "${BOLD}${CYAN}▶ $*${NC}"; }
+
+check_bin() {
+    if [[ ! -x "$SERVER_BIN" ]]; then
+        error "Server binary '$SERVER_BIN' not found or not executable."
+        error "Make sure steel-linux is in $(pwd) and run: chmod +x steel-linux"
+        exit 1
+    fi
+}
+
+ensure_dirs() {
+    mkdir -p "$LOG_DIR" "$SAVES_DIR" "$CONFIG_DIR"
+}
+
+main() {
+    local ram="${1:-}"
+
+    header "AethelxStoneMC — SteelMC Server Launcher"
+    info "Working directory: $(pwd)"
+    info "Server binary:     $SERVER_BIN ($(du -h "$SERVER_BIN" | cut -f1))"
+
+    if [[ -n "$ram" ]]; then
+        info "Requested RAM:     $ram"
+        info "(SteelMC is a native Rust binary — no JVM heap flag needed.)"
+    else
+        warn "No RAM argument given. Usage: ./start [RAM]  e.g. ./start 2G"
+    fi
+
+    local avail_kb
+    avail_kb="$(awk '/^MemAvailable:/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)"
+    if (( avail_kb > 0 && avail_kb < 2097152 )); then
+        warn "Only ~$(( avail_kb / 1024 ))MB free RAM detected — this may be tight."
+        warn "Consider closing other apps before starting."
+    fi
+
+    check_bin
+    ensure_dirs
+
+    echo ""
+    info "Starting SteelMC server…"
+    echo ""
+
+    exec "$SERVER_BIN" "$@"
+}
+
+main "$@"

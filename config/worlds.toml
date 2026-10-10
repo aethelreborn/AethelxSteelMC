@@ -1,0 +1,27 @@
+
+save_path = "saves"
+seed = ""
+default_gamemode = "survival"
+difficulty = "normal"
+
+[storage]
+type = "steel:disk"
+
+[player_storage]
+type = "steel:file"
+
+[domains.minecraft]
+default = true
+
+[[domains.minecraft.worlds]]
+name = "overworld"
+generator = "minecraft:overworld"
+default = true
+
+[[domains.minecraft.worlds]]
+name = "the_nether"
+generator = "minecraft:the_nether"
+
+[[domains.minecraft.worlds]]
+name = "the_end"
+generator = "minecraft:the_end"
