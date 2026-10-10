@@ -591,6 +591,29 @@ pub trait BlockBehavior: Send + Sync {
         Some(ItemStack::new(REGISTRY.items.by_block(block)))
     }
 
+    /// Variant of [`BlockBehavior::get_clone_item_stack`] that can read live
+    /// block-entity data at the picked position.
+    ///
+    /// Pick block uses this entry point; the default delegates to the
+    /// state-only [`BlockBehavior::get_clone_item_stack`], which is enough for
+    /// blocks whose pick item has no block-entity contents.
+    ///
+    /// Vanilla parity: `Block.getCloneItemStack(BlockGetter, BlockPos, BlockState)`.
+    #[expect(
+        unused_variables,
+        reason = "default impl delegates to the state-only variant"
+    )]
+    fn get_clone_item_stack_with_data(
+        &self,
+        world: &Arc<World>,
+        pos: BlockPos,
+        block: BlockRef,
+        state: BlockStateId,
+        include_data: bool,
+    ) -> Option<ItemStack> {
+        self.get_clone_item_stack(block, state, include_data)
+    }
+
     /// Returns whether this block state is pathfindable for the supplied vanilla path computation.
     ///
     /// Vanilla baseline for `BlockBehaviour.isPathfindable`.

@@ -194,15 +194,16 @@ impl Player {
 
         let include_data = self.has_infinite_materials() && packet.include_data;
 
-        let Some(item_stack) = behavior.get_clone_item_stack(block, state, include_data) else {
+        let world = self.get_world();
+        let Some(item_stack) =
+            behavior.get_clone_item_stack_with_data(&world, packet.pos, block, state, include_data)
+        else {
             return;
         };
 
         if item_stack.is_empty() {
             return;
         }
-
-        // TODO: If include_data, copy the block entity data into the picked item stack.
 
         let mut inventory = self.inventory.lock();
 

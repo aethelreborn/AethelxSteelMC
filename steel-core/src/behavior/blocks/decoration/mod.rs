@@ -10,6 +10,7 @@ mod jukebox_block;
 mod jukebox_tests;
 mod lantern_block;
 mod sign_block;
+mod skull_block;
 mod torch_block;
 mod weathering_lantern_block;
 
@@ -25,6 +26,10 @@ pub use lantern_block::LanternBlock;
 pub use sign_block::{
     CeilingHangingSignBlock, StandingSignBlock, WallHangingSignBlock, WallSignBlock,
     is_facing_front_text,
+};
+pub use skull_block::{
+    PiglinWallSkullBlock, PlayerHeadBlock, PlayerWallHeadBlock, SkullBlock, WallSkullBlock,
+    WitherSkullBlock, WitherWallSkullBlock,
 };
 pub use torch_block::{TorchBlock, WallTorchBlock};
 pub use weathering_lantern_block::WeatheringLanternBlock;
